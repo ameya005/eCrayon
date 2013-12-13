@@ -1,0 +1,28 @@
+
+# AVR-GCC Makefile
+#SOURCES1 = nrf24l01.c spi1.c uart.c mag_acc.c
+#SOURCES2 = nrf24l01.c spi1.c uart.c
+SOURCES1 = crayonTest.c
+MAIN1= crayonTest.c
+
+CC=avr-gcc
+OBJCOPY=avr-objcopy
+MMCU=atmega328p
+
+CFLAGS=-mmcu=$(MMCU)
+
+local.hex: local.out
+		$(OBJCOPY) -j .text -j .data -O ihex local.out local.hex
+local.out : $(SOURCES1) 
+		$(CC) $(CFLAGS) -O3 -I./ -o local.out $(SOURCES1)
+
+pt: local.hex
+	sudo avrdude -F -V -c arduino -p ATMEGA8 -P /dev/ttyACM0 -b 115200 -U flash:w:local.hex
+pr: remote.hex
+	sudo avrdude -F -V -c arduino -p ATMEGA8 -P /dev/ttyACM1 -b 115200 -U flash:w:remote.hex
+
+
+clean:
+	rm -f *.out
+	rm -f *.hex
+	rm -f *.s
